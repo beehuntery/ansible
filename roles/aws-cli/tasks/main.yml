@@ -1,0 +1,26 @@
+- name: Download awscli zip file
+  ansible.builtin.get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: "/home/{{ ansible_user }}/awscliv2.zip"
+
+- name: Install unzip 
+  become: yes
+  apt:
+    name:
+      - unzip 
+    state: present
+
+- name: Unarchive a file that is already on the remote machine
+  ansible.builtin.unarchive:
+    src: "/home/{{ ansible_user }}/awscliv2.zip"
+    dest: "/home/{{ ansible_user }}/"
+    remote_src: yes
+
+- name: Check AWS CLI is installed
+  shell: |
+    aws --version >/dev/null; echo $?
+  register: result
+
+- name: Execute install script
+  shell: "sudo /home/{{ ansible_user }}/aws/install"
+  when: result.stdout != '0'

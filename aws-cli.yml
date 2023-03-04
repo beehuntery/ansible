@@ -1,0 +1,6 @@
+- name: Install AWS CLI on Linux
+  hosts:
+    - runner
+    - gitlab
+  roles:
+    - aws-cli

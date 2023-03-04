@@ -1,0 +1,6 @@
+- name: Setup Docker on Ubuntu
+  hosts:
+    - localhost
+    - ubuntu
+  roles:
+    - docker

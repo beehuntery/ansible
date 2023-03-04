@@ -1,0 +1,64 @@
+- name: Uninstall older versions
+  become: yes
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+
+- name: Update the apt package
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install packages to allow apt to use a repository over HTTPS
+  become: yes
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Create keyrings directory
+  become: yes
+  file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    recurse: yes
+
+- name: Add GPG key
+  become: yes
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring: /etc/apt/keyrings/docker.gpg
+    state: present
+
+- name: Set up the repository
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Update the apt package
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Docker Engine
+  become: yes
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  notify: add_user_to_docker_group
+
